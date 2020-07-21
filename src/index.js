@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import 'semantic-ui-css/semantic.min.css';
 import App from './components/App';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
@@ -11,7 +11,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 const Root = () => (
   <Router>
     <Switch>
-      <Route path='/' component={App} />
+      <Route path='/' exact component={App} />
       <Route path='/login' component={Login} />
       <Route path='/register' component={Register} />
     </Switch>
