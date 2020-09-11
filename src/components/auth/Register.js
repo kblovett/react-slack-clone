@@ -11,10 +11,15 @@ import {
 } from 'semantic-ui-react';
 
 class Register extends React.Component {
-  state = {};
+  state = {
+    username: '',
+    email: '',
+    password: '',
+    passwordConfirmation: '',
+  };
 
   handleChange = (event) => {
-    this.setState({ [event.target.name]: event });
+    this.setState({ [event.target.name]: event.target.value });
   };
 
   render() {
