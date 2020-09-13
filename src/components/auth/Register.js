@@ -9,6 +9,7 @@ import {
   Message,
   Icon,
 } from 'semantic-ui-react';
+import md5 from 'md5';
 
 import firebase from '../../firebase';
 
@@ -20,6 +21,7 @@ class Register extends React.Component {
     passwordConfirmation: '',
     errors: [],
     loading: false,
+    usersRef: firebase.database().ref('users'),
   };
 
   isFormValid = () => {
@@ -38,7 +40,6 @@ class Register extends React.Component {
       return true;
     }
   };
-
   isFormEmpty = ({ username, email, password, passwordConfirmation }) => {
     return (
       !username.length ||
@@ -57,8 +58,15 @@ class Register extends React.Component {
     }
   };
 
-  displayErrors = (errors) =>
+  displayErrors = (errors) => {
     errors.map((error, i) => <p key={i}>{error.message}</p>);
+  };
+  saveUser = (createdUser) => {
+    return this.state.usersRef.child(createdUser.user.uid).set({
+      name: createdUser.user.displayName,
+      avatar: createdUser.user.photoURL,
+    });
+  };
 
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
@@ -72,7 +80,26 @@ class Register extends React.Component {
         .createUserWithEmailAndPassword(this.state.email, this.state.password)
         .then((createdUser) => {
           console.log(createdUser);
-          this.setState({ loading: false });
+          createdUser.user
+            .updateProfile({
+              displayName: this.state.username,
+              photoURL: `http://gravatar.com/avatar/${md5(
+                createdUser.user.email
+              )}?d=identicon`,
+            })
+            .then(() => {
+              this.saveUser(createdUser).then(() => {
+                console.log('User created');
+                this.setState({ loading: false });
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+              this.setState({
+                errors: this.state.errors.concat(err),
+                loading: false,
+              });
+            });
         })
         .catch((err) => {
           console.error(err);
