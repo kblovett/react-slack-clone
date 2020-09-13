@@ -4,6 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import App from './components/App';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
+import Spinner from './Spinner';
 
 import firebase from './firebase';
 
@@ -27,7 +28,7 @@ class Root extends React.Component {
   componentDidMount() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        // console.log(user);
+        console.log(this.props.isLoading);
         this.props.setUser(user);
         this.props.history.push('/');
       }
@@ -35,7 +36,9 @@ class Root extends React.Component {
   }
 
   render() {
-    return (
+    return this.props.isLoading ? (
+      <Spinner />
+    ) : (
       <Switch>
         <Route path='/' exact component={App} />
         <Route path='/login' component={Login} />
@@ -45,7 +48,11 @@ class Root extends React.Component {
   }
 }
 
-const RootWithAuth = withRouter(connect(null, { setUser })(Root));
+const mapStateFromProps = (state) => ({
+  isLoading: state.user.isLoading,
+});
+
+const RootWithAuth = withRouter(connect(mapStateFromProps, { setUser })(Root));
 
 ReactDOM.render(
   <Provider store={store}>
