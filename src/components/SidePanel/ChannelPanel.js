@@ -31,8 +31,14 @@ class ChannelPanel extends React.Component {
       this.setState({ channels: loadedChannels }, () => this.setFirstChannel());
     });
   };
+  removeListeners = () => {
+    this.state.channelRef.off();
+  };
   componentDidMount() {
     this.addListeners();
+  }
+  componentWillUnmount() {
+    this.removeListeners();
   }
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
