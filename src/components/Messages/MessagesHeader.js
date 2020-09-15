@@ -11,8 +11,9 @@ class MessagesHeader extends React.Component {
             Channel
             <Icon name={'star outline'} color='black' />
           </span>
-          <Header.Subheader>2 Yutes</Header.Subheader>
+          <Header.Subheader>2 Users</Header.Subheader>
         </Header>
+
         {/* Channel Search Input */}
         <Header floated='right'>
           <Input

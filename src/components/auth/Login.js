@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import firebase from '../../firebase';
 import {
   Grid,
   Form,
@@ -9,8 +9,7 @@ import {
   Message,
   Icon,
 } from 'semantic-ui-react';
-
-import firebase from '../../firebase';
+import { Link } from 'react-router-dom';
 
 class Login extends React.Component {
   state = {
@@ -20,15 +19,13 @@ class Login extends React.Component {
     loading: false,
   };
 
-  displayErrors = (errors) => {
+  displayErrors = (errors) =>
     errors.map((error, i) => <p key={i}>{error.message}</p>);
-  };
-
-  isFormValid = ({ email, password }) => email && password;
 
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
+
   handleSubmit = (event) => {
     event.preventDefault();
     if (this.isFormValid(this.state)) {
@@ -38,12 +35,9 @@ class Login extends React.Component {
         .signInWithEmailAndPassword(this.state.email, this.state.password)
         .then((signedInUser) => {
           console.log(signedInUser);
-          this.setState({
-            loading: false,
-          });
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           this.setState({
             errors: this.state.errors.concat(err),
             loading: false,
@@ -51,7 +45,10 @@ class Login extends React.Component {
         });
     }
   };
-  handleInputErrors = (errors, inputName) => {
+
+  isFormValid = ({ email, password }) => email && password;
+
+  handleInputError = (errors, inputName) => {
     return errors.some((error) =>
       error.message.toLowerCase().includes(inputName)
     )
@@ -69,7 +66,7 @@ class Login extends React.Component {
             <Icon name='code branch' color='violet' />
             Login to DevChat
           </Header>
-          <Form size='large' onSubmit={this.handleSubmit}>
+          <Form onSubmit={this.handleSubmit} size='large'>
             <Segment stacked>
               <Form.Input
                 fluid
@@ -79,9 +76,10 @@ class Login extends React.Component {
                 placeholder='Email Address'
                 onChange={this.handleChange}
                 value={email}
+                className={this.handleInputError(errors, 'email')}
                 type='email'
-                className={this.handleInputErrors(errors, 'email')}
               />
+
               <Form.Input
                 fluid
                 name='password'
@@ -90,15 +88,16 @@ class Login extends React.Component {
                 placeholder='Password'
                 onChange={this.handleChange}
                 value={password}
+                className={this.handleInputError(errors, 'password')}
                 type='password'
-                className={this.handleInputErrors(errors, 'password')}
               />
+
               <Button
                 disabled={loading}
                 className={loading ? 'loading' : ''}
+                color='violet'
                 fluid
                 size='large'
-                color='violet'
               >
                 Submit
               </Button>
@@ -111,7 +110,7 @@ class Login extends React.Component {
             </Message>
           )}
           <Message>
-            Don't have an account? <Link to='/register'>Register here.</Link>
+            Don't have an account? <Link to='/register'>Register</Link>
           </Message>
         </Grid.Column>
       </Grid>

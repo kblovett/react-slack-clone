@@ -9,7 +9,7 @@ class MessageForm extends React.Component {
           fluid
           name='message'
           style={{ marginBottom: '0.7em' }}
-          label={<Button icon='add' basic />}
+          label={<Button icon={'add'} />}
           labelPosition='left'
           placeholder='Write your message'
         />
@@ -19,7 +19,7 @@ class MessageForm extends React.Component {
             content='Add Reply'
             labelPosition='left'
             icon='edit'
-          />{' '}
+          />
           <Button
             color='teal'
             content='Upload Media'

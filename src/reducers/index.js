@@ -5,9 +5,6 @@ const initialUserState = {
   currentUser: null,
   isLoading: true,
 };
-const initialChannelState = {
-  currentChannel: null,
-};
 
 const user_reducer = (state = initialUserState, action) => {
   switch (action.type) {
@@ -24,6 +21,10 @@ const user_reducer = (state = initialUserState, action) => {
     default:
       return state;
   }
+};
+
+const initialChannelState = {
+  currentChannel: null,
 };
 
 const channel_reducer = (state = initialChannelState, action) => {

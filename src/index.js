@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'semantic-ui-css/semantic.min.css';
 import App from './components/App';
-import Register from './components/auth/Register';
 import Login from './components/auth/Login';
+import Register from './components/auth/Register';
 import Spinner from './Spinner';
-
+import registerServiceWorker from './registerServiceWorker';
 import firebase from './firebase';
 
-import registerServiceWorker from './registerServiceWorker';
+import 'semantic-ui-css/semantic.min.css';
+
 import {
   BrowserRouter as Router,
   Switch,
@@ -28,7 +28,7 @@ class Root extends React.Component {
   componentDidMount() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(this.props.isLoading);
+        // console.log(user);
         this.props.setUser(user);
         this.props.history.push('/');
       } else {
@@ -43,7 +43,7 @@ class Root extends React.Component {
       <Spinner />
     ) : (
       <Switch>
-        <Route path='/' exact component={App} />
+        <Route exact path='/' component={App} />
         <Route path='/login' component={Login} />
         <Route path='/register' component={Register} />
       </Switch>

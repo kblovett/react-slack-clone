@@ -1,6 +1,6 @@
 import * as actionTypes from './types';
 
-// User Actions
+/* User Actions */
 export const setUser = (user) => {
   return {
     type: actionTypes.SET_USER,
@@ -9,13 +9,14 @@ export const setUser = (user) => {
     },
   };
 };
+
 export const clearUser = () => {
   return {
     type: actionTypes.CLEAR_USER,
   };
 };
 
-// Channel Actions
+/* Channel Actions */
 export const setCurrentChannel = (channel) => {
   return {
     type: actionTypes.SET_CURRENT_CHANNEL,
@@ -24,4 +25,3 @@ export const setCurrentChannel = (channel) => {
     },
   };
 };
-export const changeChannel = (channel) => {};
