@@ -9,6 +9,7 @@ body,
 /* Messages.js */
 .messages {
   height: 440px;
+  max-width: none !important;
   overflow-y: scroll;
 }
 
