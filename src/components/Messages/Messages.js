@@ -15,6 +15,9 @@ class Messages extends React.Component {
     user: this.props.currentUser,
     progressBar: false,
     numUniqueUsers: '',
+    searchTerm: '',
+    searchLoading: false,
+    searchResults: [],
   };
 
   countUniqueUsers = (messages) => {
@@ -63,6 +66,30 @@ class Messages extends React.Component {
     }
   };
   displayChannelName = (channel) => (channel ? `#${channel.name}` : '');
+  handleSearchMessages = () => {
+    const channelMessages = [...this.state.messages];
+    const regex = new RegExp(this.state.searchTerm, 'gi');
+    const searchResults = channelMessages.reduce((acc, message) => {
+      if (
+        (message.content && message.content.match(regex)) ||
+        message.user.name.match(regex)
+      ) {
+        acc.push(message);
+      }
+      return acc;
+    }, []);
+    this.setState({ searchResults });
+    setTimeout(() => this.setState({ searchLoading: false }), 500);
+  };
+  handleSearchChange = (event) => {
+    this.setState(
+      {
+        searchTerm: event.target.value,
+        searchLoading: true,
+      },
+      () => this.handleSearchMessages()
+    );
+  };
 
   render() {
     const {
@@ -72,19 +99,27 @@ class Messages extends React.Component {
       user,
       progressBar,
       numUniqueUsers,
+      searchTerm,
+      searchResults,
+      searchLoading,
     } = this.state;
+
     return (
       <React.Fragment>
         <MessagesHeader
           channelName={this.displayChannelName(channel)}
           numUniqueUsers={numUniqueUsers}
+          handleSearchChange={this.handleSearchChange}
+          searchLoading={searchLoading}
         />
 
         <Segment>
           <Comment.Group
             className={progressBar ? 'messages__progress' : 'messages'}
           >
-            {this.displayMessages(messages)}
+            {searchTerm
+              ? this.displayMessages(searchResults)
+              : this.displayMessages(messages)}
           </Comment.Group>
         </Segment>
 
