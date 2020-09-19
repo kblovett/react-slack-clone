@@ -12,15 +12,11 @@ class DirectMessages extends React.Component {
     presenceRef: firebase.database().ref('presence'),
   };
 
-  addStatusToUser = (userId, connected = true) => {
-    const updatedUsers = this.state.users.reduce((acc, user) => {
-      if ((user.uid = userId)) {
-        user['status'] = `${connected ? 'online' : 'offline'}`;
-      }
-      return acc.concat(user);
-    }, []);
-    this.setState({ users: updatedUsers });
-  };
+  componentDidMount() {
+    if (this.state.user) {
+      this.addListeners(this.state.user.uid);
+    }
+  }
 
   addListeners = (currentUserUid) => {
     let loadedUsers = [];
@@ -56,13 +52,17 @@ class DirectMessages extends React.Component {
     });
   };
 
-  isUserOnline = (user) => user.status === 'online';
+  addStatusToUser = (userId, connected = true) => {
+    const updatedUsers = this.state.users.reduce((acc, user) => {
+      if (user.uid === userId) {
+        user['status'] = `${connected ? 'online' : 'offline'}`;
+      }
+      return acc.concat(user);
+    }, []);
+    this.setState({ users: updatedUsers });
+  };
 
-  componentDidMount() {
-    if (this.state.user) {
-      this.addListeners(this.state.user.uid);
-    }
-  }
+  isUserOnline = (user) => user.status === 'online';
 
   render() {
     const { users } = this.state;
