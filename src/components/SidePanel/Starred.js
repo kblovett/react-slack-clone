@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { setCurrentChannel, setPrivateChannel } from '../../actions';
-
 import { Menu, Icon, Label } from 'semantic-ui-react';
 
 class Starred extends React.Component {
