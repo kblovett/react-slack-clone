@@ -4,6 +4,7 @@ import * as actionTypes from '../actions/types';
 const initialUserState = {
   currentUser: null,
   isLoading: true,
+  isPrivateChannel: false,
 };
 
 const user_reducer = (state = initialUserState, action) => {
@@ -33,6 +34,11 @@ const channel_reducer = (state = initialChannelState, action) => {
       return {
         ...state,
         currentChannel: action.payload.currentChannel,
+      };
+    case actionTypes.SET_PRIVATE_CHANNEL:
+      return {
+        ...state,
+        isPrivateChannel: action.payload.isPrivateChannel,
       };
     default:
       return state;
