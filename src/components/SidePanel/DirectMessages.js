@@ -1,13 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import firebase from '../../firebase';
-
+import { connect } from 'react-redux';
 import { setCurrentChannel, setPrivateChannel } from '../../actions';
-
 import { Menu, Icon } from 'semantic-ui-react';
 
 class DirectMessages extends React.Component {
   state = {
+    activeChannel: '',
     user: this.props.currentUser,
     users: [],
     usersRef: firebase.database().ref('users'),
@@ -32,6 +31,7 @@ class DirectMessages extends React.Component {
         this.setState({ users: loadedUsers });
       }
     });
+
     this.state.connectedRef.on('value', (snap) => {
       if (snap.val() === true) {
         const ref = this.state.presenceRef.child(currentUserUid);
@@ -43,11 +43,13 @@ class DirectMessages extends React.Component {
         });
       }
     });
+
     this.state.presenceRef.on('child_added', (snap) => {
       if (currentUserUid !== snap.key) {
         this.addStatusToUser(snap.key);
       }
     });
+
     this.state.presenceRef.on('child_removed', (snap) => {
       if (currentUserUid !== snap.key) {
         this.addStatusToUser(snap.key, false);
@@ -67,12 +69,6 @@ class DirectMessages extends React.Component {
 
   isUserOnline = (user) => user.status === 'online';
 
-  getChannelId = (userId) => {
-    const currentUserUid = this.state.user.uid;
-    return userId < currentUserUid
-      ? `${userId}/${currentUserUid}`
-      : `${currentUserUid}/${userId}`;
-  };
   changeChannel = (user) => {
     const channelId = this.getChannelId(user.uid);
     const channelData = {
@@ -81,10 +77,22 @@ class DirectMessages extends React.Component {
     };
     this.props.setCurrentChannel(channelData);
     this.props.setPrivateChannel(true);
+    this.setActiveChannel(user.uid);
+  };
+
+  getChannelId = (userId) => {
+    const currentUserId = this.state.user.uid;
+    return userId < currentUserId
+      ? `${userId}/${currentUserId}`
+      : `${currentUserId}/${userId}`;
+  };
+
+  setActiveChannel = (userId) => {
+    this.setState({ activeChannel: userId });
   };
 
   render() {
-    const { users } = this.state;
+    const { users, activeChannel } = this.state;
 
     return (
       <Menu.Menu className='menu'>
@@ -97,8 +105,9 @@ class DirectMessages extends React.Component {
         {users.map((user) => (
           <Menu.Item
             key={user.uid}
+            active={user.uid === activeChannel}
             onClick={() => this.changeChannel(user)}
-            style={{ opacity: 0.7, fontstyle: 'italic' }}
+            style={{ opacity: 0.7, fontStyle: 'italic' }}
           >
             <Icon
               name='circle'
