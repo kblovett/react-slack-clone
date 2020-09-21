@@ -1,13 +1,49 @@
 import React from 'react';
+import firebase from '../../firebase';
 import { connect } from 'react-redux';
-
 import { setCurrentChannel, setPrivateChannel } from '../../actions';
-import { Menu, Icon, Label } from 'semantic-ui-react';
+import { Menu, Icon } from 'semantic-ui-react';
 
 class Starred extends React.Component {
   state = {
+    user: this.props.currentUser,
+    usersRef: firebase.database().ref('users'),
     activeChannel: '',
     starredChannels: [],
+  };
+
+  addListeners = (userId) => {
+    this.state.usersRef
+      .child(userId)
+      .child('starred')
+      .on('child_added', (snap) => {
+        const starredChannel = { id: snap.key, ...snap.val() };
+        this.setState({
+          starredChannels: [...this.state.starredChannels, starredChannel],
+        });
+      });
+
+    this.state.usersRef
+      .child(userId)
+      .child('starred')
+      .on('child_removed', (snap) => {
+        const channelToRemove = { id: snap.key, ...snap.val() };
+        const filteredChannels = this.state.starredChannels.filter(
+          (channel) => {
+            return channel.id !== channelToRemove.id;
+          }
+        );
+        this.setState({ starredChannels: filteredChannels });
+      });
+  };
+  componentDidMount() {
+    if (this.state.user) {
+      this.addListeners(this.state.user.uid);
+    }
+  }
+
+  setActiveChannel = (channel) => {
+    this.setState({ activeChannel: channel.id });
   };
 
   changeChannel = (channel) => {
@@ -15,9 +51,7 @@ class Starred extends React.Component {
     this.props.setCurrentChannel(channel);
     this.props.setPrivateChannel(false);
   };
-  setActiveChannel = (channel) => {
-    this.setState({ activeChannel: channel.id });
-  };
+
   displayChannels = (starredChannels) =>
     starredChannels.length > 0 &&
     starredChannels.map((channel) => (
@@ -28,9 +62,6 @@ class Starred extends React.Component {
         style={{ opacity: 0.7 }}
         active={channel.id === this.state.activeChannel}
       >
-        {this.getNotificationCount(channel) && (
-          <Label color='red'>{this.getNotificationCount(channel)}</Label>
-        )}
         # {channel.name}
       </Menu.Item>
     ));
@@ -52,4 +83,4 @@ class Starred extends React.Component {
   }
 }
 
-export default connect(null, setCurrentChannel, setPrivateChannel)(Starred);
+export default connect(null, { setCurrentChannel, setPrivateChannel })(Starred);
