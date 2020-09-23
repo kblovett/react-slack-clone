@@ -14,7 +14,7 @@ import {
   Label,
   Segment,
 } from 'semantic-ui-react';
-import { SliderPicker } from 'react-color';
+import { SketchPicker } from 'react-color';
 
 class ColorPanel extends React.Component {
   state = {
@@ -110,14 +110,14 @@ class ColorPanel extends React.Component {
           <Modal.Content>
             <Segment inverted>
               <Label content='Primary Colour' />
-              <SliderPicker
+              <SketchPicker
                 color={primary}
                 onChange={this.handleChangePrimary}
               />
             </Segment>
             <Segment inverted>
               <Label content='Secondary Colour' />
-              <SliderPicker
+              <SketchPicker
                 color={secondary}
                 onChange={this.handleChangeSecondary}
               />
