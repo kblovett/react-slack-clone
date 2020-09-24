@@ -21,7 +21,14 @@ class UserPanel extends React.Component {
     modal: false,
     previewImage: '',
     croppedImage: '',
+    uploadedCroppedImage: '',
     blob: '',
+    storageRef: firebase.storage().ref(),
+    userRef: firebase.auth().currentUser,
+    usersRef: firebase.database().ref('users'),
+    metadata: {
+      contentType: 'image/jpeg',
+    },
   };
 
   openModal = () => this.setState({ modal: true });
@@ -71,8 +78,42 @@ class UserPanel extends React.Component {
     }
   };
 
-  handleSaveImage = () => {
-    this.closeModal();
+  changeAvatar = () => {
+    this.state.userRef
+      .updateProfile({
+        photoURL: this.state.uploadedCroppedImage,
+      })
+      .then(() => {
+        console.log('PhotoURL updated');
+        this.closeModal();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+    this.state.usersRef
+      .child(this.state.user.uid)
+      .update({ avatar: this.state.uploadedCroppedImage })
+      .then(() => {
+        console.log("User's Avatar updated");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  uploadCroppedImage = () => {
+    const { storageRef, userRef, blob, metadata } = this.state;
+    storageRef
+      .child(`avatars/user-${userRef.uid}`)
+      .put(blob, metadata)
+      .then((snap) => {
+        snap.ref.getDownloadURL().then((downloadURL) => {
+          this.setState({ uploadedCroppedImage: downloadURL }, () =>
+            this.changeAvatar()
+          );
+        });
+      });
   };
 
   handleSignout = () => {
@@ -152,7 +193,11 @@ class UserPanel extends React.Component {
                 <Icon name='image' /> Preview
               </Button>
               {croppedImage && (
-                <Button color='green' inverted onClick={this.handleSaveImage}>
+                <Button
+                  color='green'
+                  inverted
+                  onClick={this.uploadCroppedImage}
+                >
                   <Icon name='save' /> Save Avatar
                 </Button>
               )}
