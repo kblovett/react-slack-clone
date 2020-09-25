@@ -10,6 +10,7 @@ import MessagesHeader from './MessagesHeader';
 import MessageForm from './MessageForm';
 import Message from './Message';
 import Typing from './Typing';
+import Skeleton from './Skeleton';
 
 class Messages extends React.Component {
   state = {
@@ -159,7 +160,6 @@ class Messages extends React.Component {
     if (channel && user) {
       this.addListeners(channel.id);
       this.addUserStarsListener(channel.id, user.uid);
-      //this.scrollToBottom();
     }
   }
   scrollToBottom = () => {
@@ -227,6 +227,14 @@ class Messages extends React.Component {
         <span className='user__typing'>{user.name} is typing</span> <Typing />
       </div>
     ));
+  displayMessagesSkeleton = (loading) =>
+    loading ? (
+      <React.Fragment>
+        {[...Array(10)].map((_, i) => (
+          <Skeleton key={i} />
+        ))}
+      </React.Fragment>
+    ) : null;
 
   render() {
     const {
@@ -242,6 +250,7 @@ class Messages extends React.Component {
       privateChannel,
       isChannelStarred,
       typingUsers,
+      messagesLoading,
     } = this.state;
 
     return (
@@ -260,6 +269,7 @@ class Messages extends React.Component {
           <Comment.Group
             className={progressBar ? 'messages__progress' : 'messages'}
           >
+            {this.displayMessagesSkeleton(messagesLoading)}
             {searchTerm
               ? this.displayMessages(searchResults)
               : this.displayMessages(messages)}
