@@ -40,7 +40,7 @@ class FileModal extends React.Component {
         <Modal.Content>
           <Input
             fluid
-            label='File types: jpg, png'
+            label='Requirements: Less than 1MB'
             name='file'
             type='file'
             onChange={this.addFile}

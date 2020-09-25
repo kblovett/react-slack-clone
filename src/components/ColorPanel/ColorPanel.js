@@ -109,7 +109,7 @@ class ColorPanel extends React.Component {
         {this.displayUserColors(userColors)}
 
         {/* Color Picker modal */}
-        <Modal basic open={modal} onClose={this.closeModal}>
+        <Modal basic open={modal} onClose={this.closeModal} size='mini'>
           <Modal.Header>Choose App Colours</Modal.Header>
           <Modal.Content>
             <Segment inverted>
