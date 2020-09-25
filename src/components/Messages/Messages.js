@@ -31,24 +31,43 @@ class Messages extends React.Component {
     typingRef: firebase.database().ref('typing'),
     typingUsers: [],
     connectedRef: firebase.database().ref('.info/connected'),
+    listeners: [],
   };
 
   starChannel = () => {
-    if (this.state.isChannelStarred) {
-      this.state.usersRef.child(`${this.state.user.uid}/starred`).update({
-        [this.state.channel.id]: {
-          name: this.state.channel.name,
-          details: this.state.channel.details,
+    const {
+      channel,
+      user,
+      isChannelStarred,
+      usersRef,
+      privateChannel,
+    } = this.state;
+    if (isChannelStarred && !privateChannel) {
+      usersRef.child(`${user.uid}/starred`).update({
+        [channel.id]: {
+          name: channel.name,
+          details: channel.details,
           createdBy: {
-            name: this.state.channel.createdBy.name,
-            avatar: this.state.channel.createdBy.avatar,
+            name: channel.createdBy.name,
+            avatar: channel.createdBy.avatar,
+          },
+        },
+      });
+    } else if (isChannelStarred) {
+      usersRef.child(`${user.uid}/starred`).update({
+        [channel.id]: {
+          name: 'Private',
+          details: 'This is a Private Channel',
+          createdBy: {
+            name: channel.name,
+            avatar: '',
           },
         },
       });
     } else {
-      this.state.usersRef
-        .child(`${this.state.user.uid}/starred`)
-        .child(this.state.channel.id)
+      usersRef
+        .child(`${user.uid}/starred`)
+        .child(channel.id)
         .remove((err) => {
           if (err !== null) {
             console.error(err);
@@ -105,6 +124,7 @@ class Messages extends React.Component {
       this.countUniqueUsers(loadedMessages);
       this.countUserPosts(loadedMessages);
     });
+    this.addToListeners(channelId, ref, 'child_added');
   };
   addUserStarsListener = (channelId, userId) => {
     this.state.usersRef
@@ -130,6 +150,7 @@ class Messages extends React.Component {
         this.setState({ typingUsers });
       }
     });
+    this.addToListeners(channelId, this.state.typingRef, 'child_added');
     this.state.typingRef.child(channelId).on('child_removed', (snap) => {
       const index = typingUsers.findIndex((user) => user.id === snap.key);
       if (index !== -1) {
@@ -137,6 +158,7 @@ class Messages extends React.Component {
         this.setState({ typingUsers });
       }
     });
+    this.addToListeners(channelId, this.state.typingRef, 'child_removed');
     this.state.connectedRef.on('value', (snap) => {
       if (snap.val() === true) {
         this.state.typingRef
@@ -156,11 +178,32 @@ class Messages extends React.Component {
     this.addTypingListener(channelId);
   };
   componentDidMount() {
-    const { channel, user } = this.state;
+    const { channel, user, listeners } = this.state;
     if (channel && user) {
+      this.removeListeners(listeners);
       this.addListeners(channel.id);
       this.addUserStarsListener(channel.id, user.uid);
     }
+  }
+  removeListeners = (listeners) => {
+    listeners.forEach((listener) => {
+      listener.ref.child(listener.id).off(listener.event);
+    });
+  };
+  addToListeners = (id, ref, event) => {
+    const index = this.state.listeners.findIndex((listener) => {
+      return (
+        listener.id === id && listener.ref === ref && listener.event === event
+      );
+    });
+    if (index === -1) {
+      const newListener = { id, ref, event };
+      this.setState({ listeners: this.state.listeners.concat(newListener) });
+    }
+  };
+  componentWillUnmount() {
+    this.removeListeners(this.state.listeners);
+    this.state.connectedRef.off();
   }
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: 'smooth' });

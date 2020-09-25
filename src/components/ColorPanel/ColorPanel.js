@@ -31,15 +31,19 @@ class ColorPanel extends React.Component {
       this.addListener(this.state.user.uid);
     }
   }
+  removeListener = () => {
+    this.state.usersRef.child(`${this.state.user.uid}/colors`).off();
+  };
+  componentWillUnmount() {
+    this.removeListener();
+  }
 
   addListener = (userId) => {
     let userColors = [];
-    this.state.usersRef
-      .child(`${this.state.user.uid}/colours`)
-      .on('child_added', (snap) => {
-        userColors.unshift(snap.val());
-        this.setState({ userColors });
-      });
+    this.state.usersRef.child(`${userId}/colours`).on('child_added', (snap) => {
+      userColors.unshift(snap.val());
+      this.setState({ userColors });
+    });
   };
 
   openModal = () => this.setState({ modal: true });
